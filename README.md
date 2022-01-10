@@ -10,6 +10,7 @@
 * [Screenshots](#screenshots)
 
 ## Introduction
+<h3>Project is still in development!</h3>
 WebAPI which allows to simulate battleships game between two AI
 
 ## Features
