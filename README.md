@@ -13,16 +13,16 @@
 WebAPI which allows to simulate battleships game between two AI
 
 ## Features
-* Watch every move of AI
 * Create players, insert ships, shoot ships
+* Watch every move of AI
 * Write/Read everything into/from .json file
 
 ## Endpoints
-* /CreatePlayer/{playername} - allows to create a new player with empty board, and saves it (board) to .json file
-* /GetBoard/{playername} - allows to recieve player board in a .json format
-* /InsertShip/{playername}/{shipLength}/{direction} - allows to insert a new ship with specified length and direction to player's board, and saves updated board to .json file
-* /InsertStartingShips/{playername} - allows to insert a basic set of ships (5,4,3,2,2,1,1) to player's board, and saves updated board to .json file
-* /Fire/{shooterName}/{targetName} - allows to shoot other player's board in totally random way (but 'AI' remembers previous missfires and hit ships) - <b>WIP</b>
+* <b>/CreatePlayer/{playername}</b> - allows to create a new player with empty board, and saves it (board) to .json file
+* <b>/GetBoard/{playername}</b> - allows to recieve player board in a .json format
+* <b>/InsertShip/{playername}/{shipLength}/{direction}</b> - allows to insert a new ship with specified length and direction to player's board, and saves updated board to .json file
+* <b>/InsertStartingShips/{playername}</b> - allows to insert a basic set of ships (5,4,3,2,2,1,1) to player's board, and saves updated board to .json file
+* <b>/Fire/{shooterName}/{targetName}</b> - allows to shoot other player's board in totally random way (but 'AI' remembers previous missfires and hit ships) - <b>WIP</b>
 
 ## Technologies
 * ASP.NET Core WebAPI
