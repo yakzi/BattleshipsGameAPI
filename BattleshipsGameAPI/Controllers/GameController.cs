@@ -41,7 +41,7 @@ namespace BattleshipsGameAPI.Controllers
            return LoadBoard(@$"C:\Users\jakub\Desktop\TEST\{playername}.json");
         }
         [HttpGet]
-        [Route("InsertShip/{playername}")]
+        [Route("InsertShip/{playername}/{shipLength}/{direction}")]
         public void InsertShip(int shipLength, Direction direction, string playername, List<Point> ?board, out List<Point> newBoard)
         {
             if (board is null)
@@ -175,14 +175,14 @@ namespace BattleshipsGameAPI.Controllers
             SaveBoard(board, @$"C:\Users\jakub\Desktop\TEST\{playerName}.json");
         }
         [HttpGet]
-        [Route("InsertStartingShips/{shooterName}/{targetName}")]
+        [Route("Fire/{shooterName}/{targetName}")]
         public void Fire(string shooterName, string targetName)
         {
             var shooter = LoadBoard(@$"C:\Users\jakub\Desktop\TEST\{shooterName}.json");
             var target = LoadBoard(@$"C:\Users\jakub\Desktop\TEST\{targetName}.json");
 
             //if (shooter.Score < Consts.MaxScore)
-            for(int i = 0; i < 100; i++)                                                                                    //TEMP SOLUTION!!!!!
+            for(int i = 0; i < 2; i++)                                                                                    //TEMP SOLUTION!!!!!
             {
                 int x, y;
                 do
