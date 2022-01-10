@@ -162,17 +162,53 @@ namespace BattleshipsGameAPI.Controllers
             newBoard = board;
         }
         [HttpGet]
-        [Route("InsertStartingShips/{playername}")]
-        public void InsertStartingShips(string playername)
+        [Route("InsertStartingShips/{playerName}")]
+        public void InsertStartingShips(string playerName)
         {
-            InsertShip(5, (Direction)_random.Next(0, 4), playername, null, out var board);
-            InsertShip(4, (Direction)_random.Next(0, 4), playername, board, out board);
-            InsertShip(3, (Direction)_random.Next(0, 4), playername, board, out board);
-            InsertShip(2, (Direction)_random.Next(0, 4), playername, board, out board);
-            InsertShip(2, (Direction)_random.Next(0, 4), playername, board, out board);
-            InsertShip(1, (Direction)_random.Next(0, 4), playername, board, out board);
-            InsertShip(1, (Direction)_random.Next(0, 4), playername, board, out board);
-            SaveBoard(board, @$"C:\Users\jakub\Desktop\TEST\{playername}.json");
+            InsertShip(5, (Direction)_random.Next(0, 4), playerName, null, out var board);
+            InsertShip(4, (Direction)_random.Next(0, 4), playerName, board, out board);
+            InsertShip(3, (Direction)_random.Next(0, 4), playerName, board, out board);
+            InsertShip(2, (Direction)_random.Next(0, 4), playerName, board, out board);
+            InsertShip(2, (Direction)_random.Next(0, 4), playerName, board, out board);
+            InsertShip(1, (Direction)_random.Next(0, 4), playerName, board, out board);
+            InsertShip(1, (Direction)_random.Next(0, 4), playerName, board, out board);
+            SaveBoard(board, @$"C:\Users\jakub\Desktop\TEST\{playerName}.json");
+        }
+        [HttpGet]
+        [Route("InsertStartingShips/{shooterName}/{targetName}")]
+        public void Fire(string shooterName, string targetName)
+        {
+            var shooter = LoadBoard(@$"C:\Users\jakub\Desktop\TEST\{shooterName}.json");
+            var target = LoadBoard(@$"C:\Users\jakub\Desktop\TEST\{targetName}.json");
+
+            //if (shooter.Score < Consts.MaxScore)
+            for(int i = 0; i < 100; i++)                                                                                    //TEMP SOLUTION!!!!!
+            {
+                int x, y;
+                do
+                {
+                    x = new Random().Next(0, 10);
+                    y = new Random().Next(0, 10);
+                } while (!target.Any(p => p.X == x && p.Y == y && p.Field != Field.Miss && p.Field != Field.ShipHit));      //because 'AI' knows previous shots 
+
+                var aimedPoint = target.First(p => p.X == x && p.Y >= y);                                                   //actual shooting point
+                if (aimedPoint.Field != Field.ShipHit && aimedPoint.Field != Field.Miss)
+                {
+                    if (aimedPoint.Field == Field.ShipPlaced)
+                    {
+                        aimedPoint.Field = Field.ShipHit;
+                        //shooter.Hits.Add(aimedPoint);
+                        //shooter.Score++;
+                    }
+                    else
+                    {
+                        aimedPoint.Field = Field.Miss;
+                       // shooter.Hits.Add(aimedPoint);
+                    }
+                }
+            }
+            SaveBoard(shooter, @$"C:\Users\jakub\Desktop\TEST\{shooterName}.json");
+            SaveBoard(target, @$"C:\Users\jakub\Desktop\TEST\{targetName}.json");
         }
     }
 }
