@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace BattleshipsGameDotNET.Models
+﻿namespace BattleshipsGameDotNET.Models
 {
     public class Player
     {

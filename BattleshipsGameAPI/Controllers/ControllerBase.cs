@@ -6,13 +6,14 @@ namespace BattleshipsGameAPI.Controllers
 {
     public class ControllerBase : Controller
     {
-        public List<Point> LoadBoard(string Path)
+        public List<Point> LoadBoard(string path)
         {
-            return JsonConvert.DeserializeObject<List<Point>>(System.IO.File.ReadAllText(Path));
+            //TODO IF FILE NOT EXISTS 
+            return JsonConvert.DeserializeObject<List<Point>>(System.IO.File.ReadAllText(path));
         }
-        public void SaveBoard(List<Point> Board, string path)
+        public void SaveBoard(List<Point> board, string path)
         {
-            System.IO.File.WriteAllText(path, JsonConvert.SerializeObject(Board));
+            System.IO.File.WriteAllText(path, JsonConvert.SerializeObject(board, Formatting.Indented));
         }
     }
 }
