@@ -3,15 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BattleshipsGameAPI.Controllers
 {
-    public class GameController : Controller
+    public class GameController : ControllerBase
     {
         [HttpGet]
-        [Route("CreatePlayer")]
-        public void CreatePlayer(string Name)
+        [Route("CreatePlayer/{name}")]
+        public void CreatePlayer(string playername)
         {
-            Player player = new Player();
+            Player player = new();
             CreateBoard(player);
-            player.SaveBoard(player.Board, @$"C:\Users\jakub\Desktop\TET\test{Name}.json");
+            SaveBoard(player.Board, @$"C:\Users\jakub\Desktop\TET\{playername}.json");
         }
         private void CreateBoard(Player player)
         {
@@ -30,10 +30,10 @@ namespace BattleshipsGameAPI.Controllers
             }
         }
         [HttpPost]
-        [Route("GetBoard/{id}")]
-        public List<Point> GetBoard(Player player)
+        [Route("GetBoard/{playername}")]
+        public List<Point> GetBoard(string playername)
         {
-           return player.LoadBoard(@"C:\Users\jakub\Desktop\TET\test0.json");
+           return LoadBoard(@$"C:\Users\jakub\Desktop\TET\{playername}.json");
         }
     }
 }
