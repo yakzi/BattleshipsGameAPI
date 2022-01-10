@@ -11,7 +11,7 @@
 
 ## Introduction
 <h3>Project is still in development!</h3>
-WebAPI which allows to simulate battleships game between two AI
+ASP.NET Core Web API which allows to simulate battleships game between two AI
 
 ## Features
 * Create players, insert ships, shoot ships
@@ -26,7 +26,7 @@ WebAPI which allows to simulate battleships game between two AI
 * <b>/Fire/{shooterName}/{targetName}</b> - allows to shoot other player's board in totally random way (but 'AI' remembers previous missfires and hit ships), and saves updated board to .json file - <b>WIP</b>
 
 ## Technologies
-* ASP.NET Core WebAPI
+* ASP.NET Core Web API
 * Json.NET
 * Swagger
 
