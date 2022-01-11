@@ -16,7 +16,7 @@ namespace BattleshipsGameAPI.Controllers
         {
             Player player = new();
             CreateBoard(player);
-            SaveBoard(player.Board, @$"C:\Users\jakub\Desktop\TEST\{playername}.json");
+            SaveBoard(player.Board, @$"{Consts.FilePath}\{playername}.json");
         }
         private void CreateBoard(Player player)
         {
@@ -38,7 +38,7 @@ namespace BattleshipsGameAPI.Controllers
         [Route("GetBoard/{playername}")]
         public List<Point> GetBoard(string playername)
         {
-           return LoadBoard(@$"C:\Users\jakub\Desktop\TEST\{playername}.json");
+           return LoadBoard(@$"{Consts.FilePath}\{playername}.json");
         }
         [HttpGet]
         [Route("InsertShip/{playername}/{shipLength}/{direction}")]
@@ -172,14 +172,14 @@ namespace BattleshipsGameAPI.Controllers
             InsertShip(2, (Direction)_random.Next(0, 4), playerName, board, out board);
             InsertShip(1, (Direction)_random.Next(0, 4), playerName, board, out board);
             InsertShip(1, (Direction)_random.Next(0, 4), playerName, board, out board);
-            SaveBoard(board, @$"C:\Users\jakub\Desktop\TEST\{playerName}.json");
+            SaveBoard(board, @$"{Consts.FilePath}\{playerName}.json");
         }
         [HttpGet]
         [Route("Fire/{shooterName}/{targetName}")]
         public void Fire(string shooterName, string targetName)
         {
-            var shooter = LoadBoard(@$"C:\Users\jakub\Desktop\TEST\{shooterName}.json");
-            var target = LoadBoard(@$"C:\Users\jakub\Desktop\TEST\{targetName}.json");
+            var shooter = LoadBoard(@$"{Consts.FilePath}\{shooterName}.json");
+            var target = LoadBoard(@$"{Consts.FilePath}\{targetName}.json");
 
             //if (shooter.Score < Consts.MaxScore)
             for(int i = 0; i < 2; i++)                                                                                    //TEMP SOLUTION!!!!!
@@ -207,8 +207,8 @@ namespace BattleshipsGameAPI.Controllers
                     }
                 }
             }
-            SaveBoard(shooter, @$"C:\Users\jakub\Desktop\TEST\{shooterName}.json");
-            SaveBoard(target, @$"C:\Users\jakub\Desktop\TEST\{targetName}.json");
+            SaveBoard(shooter, @$"{Consts.FilePath}\{shooterName}.json");
+            SaveBoard(target, @$"{Consts.FilePath}\{shooterName}.json");
         }
     }
 }
