@@ -12,11 +12,12 @@ namespace BattleshipsGameAPI.Controllers
         }
         [HttpGet]
         [Route("CreatePlayer/{playername}")]
-        public void CreatePlayer(string playername)
+        public ActionResult CreatePlayer(string playername)
         {
             Player player = new();
             CreateBoard(player);
             SaveBoard(player.Board, @$"{Consts.FilePath}\{playername}.json");
+            return Json(player.Board);
         }
         private void CreateBoard(Player player)
         {
@@ -36,17 +37,17 @@ namespace BattleshipsGameAPI.Controllers
         }
         [HttpGet]
         [Route("GetBoard/{playername}")]
-        public List<Point> GetBoard(string playername)
+        public ActionResult GetBoard(string playername)
         {
-           return LoadBoard(@$"{Consts.FilePath}\{playername}.json");
+           return Json(LoadBoard(@$"{Consts.FilePath}\{playername}.json"));
         }
         [HttpGet]
         [Route("InsertShip/{playername}/{shipLength}/{direction}")]
-        public void InsertShip(int shipLength, Direction direction, string playername, List<Point> ?board, out List<Point> newBoard)
+        public ActionResult InsertShip(int shipLength, Direction direction, string playername, List<Point> ?board, out List<Point> newBoard)
         {
             if (board is null)
             {
-                board = GetBoard(playername);
+                board = LoadBoard(@$"{Consts.FilePath}\{playername}.json");
             }
             var isValid = true;                                                                                         //To know if the ship can be placed or not (because of map size or other ship beeing already in here)
             var lengthX = board.Max(point => point.X);
@@ -160,10 +161,11 @@ namespace BattleshipsGameAPI.Controllers
             }
 
             newBoard = board;
+            return Json(newBoard);
         }
         [HttpGet]
         [Route("InsertStartingShips/{playerName}")]
-        public void InsertStartingShips(string playerName)
+        public ActionResult InsertStartingShips(string playerName)
         {
             InsertShip(5, (Direction)_random.Next(0, 4), playerName, null, out var board);
             InsertShip(4, (Direction)_random.Next(0, 4), playerName, board, out board);
@@ -173,10 +175,11 @@ namespace BattleshipsGameAPI.Controllers
             InsertShip(1, (Direction)_random.Next(0, 4), playerName, board, out board);
             InsertShip(1, (Direction)_random.Next(0, 4), playerName, board, out board);
             SaveBoard(board, @$"{Consts.FilePath}\{playerName}.json");
+            return Json(board);
         }
         [HttpGet]
         [Route("Fire/{shooterName}/{targetName}")]
-        public void Fire(string shooterName, string targetName)
+        public ActionResult Fire(string shooterName, string targetName)
         {
             var shooter = LoadBoard(@$"{Consts.FilePath}\{shooterName}.json");
             var target = LoadBoard(@$"{Consts.FilePath}\{targetName}.json");
@@ -209,6 +212,7 @@ namespace BattleshipsGameAPI.Controllers
             }
             SaveBoard(shooter, @$"{Consts.FilePath}\{shooterName}.json");
             SaveBoard(target, @$"{Consts.FilePath}\{shooterName}.json");
+            return Json(shooter);
         }
     }
 }
