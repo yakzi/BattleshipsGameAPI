@@ -184,41 +184,73 @@ namespace BattleshipsGameAPI.Controllers
         }
 
         [HttpGet]
-        [Route("Fire/{shooterName}/{targetName}")]
-        public ActionResult Fire(string shooterName, string targetName)
+        [Route("Fire/{shooterName}/{targetName}/autoFire")]
+        public ActionResult Fire(string shooterName, string targetName, bool autoFire = false)
         {
             var shooter = LoadBoard(@$"{Consts.FilePath}\{shooterName}.json");
             var target = LoadBoard(@$"{Consts.FilePath}\{targetName}.json");
 
-            if (target.Any(t => t.Field == Field.ShipPlaced))
+            if (autoFire)
             {
-                int x, y;
-                do
+                while (target.Any(t => t.Field == Field.ShipPlaced))
                 {
-                    x = new Random().Next(0, 10);
-                    y = new Random().Next(0, 10);
-                } while (!target.Any(p => p.X == x && p.Y == y && p.Field != Field.Miss && p.Field != Field.ShipHit));      //because 'AI' knows previous shots 
+                    int x, y;
+                    do
+                    {
+                        x = new Random().Next(0, 10);
+                        y = new Random().Next(0, 10);
+                    } while (!target.Any(p => p.X == x && p.Y == y && p.Field != Field.Miss && p.Field != Field.ShipHit));      //because 'AI' knows previous shots 
 
-                var aimedPoint = target.First(p => p.X == x && p.Y >= y);                                                   //actual shooting point
-                if (aimedPoint.Field != Field.ShipHit && aimedPoint.Field != Field.Miss)
-                {
-                    if (aimedPoint.Field == Field.ShipPlaced)
+                    var aimedPoint = target.First(p => p.X == x && p.Y >= y);                                                   //actual shooting point
+                    if (aimedPoint.Field != Field.ShipHit && aimedPoint.Field != Field.Miss)
                     {
-                        aimedPoint.Field = Field.ShipHit;
+                        if (aimedPoint.Field == Field.ShipPlaced)
+                        {
+                            aimedPoint.Field = Field.ShipHit;
+                        }
+                        else
+                        {
+                            aimedPoint.Field = Field.Miss;
+                        }
                     }
-                    else
-                    {
-                        aimedPoint.Field = Field.Miss;
-                    }
+
+                    SaveBoard(shooter, @$"{Consts.FilePath}\{shooterName}.json");
+                    SaveBoard(target, @$"{Consts.FilePath}\{shooterName}.json");
                 }
-
-                SaveBoard(shooter, @$"{Consts.FilePath}\{shooterName}.json");
-                SaveBoard(target, @$"{Consts.FilePath}\{shooterName}.json");
-                return Json(shooter);
+                return Json(target);
             }
             else
             {
-                return Content($"{shooterName} won!");
+                if (target.Any(t => t.Field == Field.ShipPlaced))
+                {
+                    int x, y;
+                    do
+                    {
+                        x = new Random().Next(0, 10);
+                        y = new Random().Next(0, 10);
+                    } while (!target.Any(p => p.X == x && p.Y == y && p.Field != Field.Miss && p.Field != Field.ShipHit));      //because 'AI' knows previous shots 
+
+                    var aimedPoint = target.First(p => p.X == x && p.Y >= y);                                                   //actual shooting point
+                    if (aimedPoint.Field != Field.ShipHit && aimedPoint.Field != Field.Miss)
+                    {
+                        if (aimedPoint.Field == Field.ShipPlaced)
+                        {
+                            aimedPoint.Field = Field.ShipHit;
+                        }
+                        else
+                        {
+                            aimedPoint.Field = Field.Miss;
+                        }
+                    }
+
+                    SaveBoard(shooter, @$"{Consts.FilePath}\{shooterName}.json");
+                    SaveBoard(target, @$"{Consts.FilePath}\{shooterName}.json");
+                    return Json(target);
+                }
+                else
+                {
+                    return Content($"{shooterName} won!");
+                }
             }
         }
     }
