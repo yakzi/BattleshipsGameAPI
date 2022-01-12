@@ -1,5 +1,6 @@
 ﻿using BattleshipsGameDotNET.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace BattleshipsGameAPI.Controllers
 {
@@ -184,8 +185,7 @@ namespace BattleshipsGameAPI.Controllers
             var shooter = LoadBoard(@$"{Consts.FilePath}\{shooterName}.json");
             var target = LoadBoard(@$"{Consts.FilePath}\{targetName}.json");
 
-            //if (shooter.Score < Consts.MaxScore)
-            for(int i = 0; i < 2; i++)                                                                                    //TEMP SOLUTION!!!!!
+            if (target.Any(t => t.Field == Field.ShipPlaced))
             {
                 int x, y;
                 do
@@ -200,19 +200,21 @@ namespace BattleshipsGameAPI.Controllers
                     if (aimedPoint.Field == Field.ShipPlaced)
                     {
                         aimedPoint.Field = Field.ShipHit;
-                        //shooter.Hits.Add(aimedPoint);
-                        //shooter.Score++;
                     }
                     else
                     {
                         aimedPoint.Field = Field.Miss;
-                       // shooter.Hits.Add(aimedPoint);
                     }
                 }
+
+                SaveBoard(shooter, @$"{Consts.FilePath}\{shooterName}.json");
+                SaveBoard(target, @$"{Consts.FilePath}\{shooterName}.json");
+                return Json(shooter);
             }
-            SaveBoard(shooter, @$"{Consts.FilePath}\{shooterName}.json");
-            SaveBoard(target, @$"{Consts.FilePath}\{shooterName}.json");
-            return Json(shooter);
+            else
+            {
+                return Content($"{shooterName} won!");
+            }
         }
     }
 }
