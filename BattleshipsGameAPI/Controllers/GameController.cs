@@ -11,6 +11,7 @@ namespace BattleshipsGameAPI.Controllers
         {
             _random = new Random();
         }
+
         [HttpGet]
         [Route("CreatePlayer/{playername}")]
         public ActionResult CreatePlayer(string playername)
@@ -36,12 +37,14 @@ namespace BattleshipsGameAPI.Controllers
                 }
             }
         }
+
         [HttpGet]
         [Route("GetBoard/{playername}")]
         public ActionResult GetBoard(string playername)
         {
            return Json(LoadBoard(@$"{Consts.FilePath}\{playername}.json"));
         }
+
         [HttpGet]
         [Route("InsertShip/{playername}/{shipLength}/{direction}")]
         public ActionResult InsertShip(int shipLength, Direction direction, string playername, List<Point> ?board, out List<Point> newBoard)
@@ -164,6 +167,7 @@ namespace BattleshipsGameAPI.Controllers
             newBoard = board;
             return Json(newBoard);
         }
+
         [HttpGet]
         [Route("InsertStartingShips/{playerName}")]
         public ActionResult InsertStartingShips(string playerName)
@@ -178,6 +182,7 @@ namespace BattleshipsGameAPI.Controllers
             SaveBoard(board, @$"{Consts.FilePath}\{playerName}.json");
             return Json(board);
         }
+
         [HttpGet]
         [Route("Fire/{shooterName}/{targetName}")]
         public ActionResult Fire(string shooterName, string targetName)
