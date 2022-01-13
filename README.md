@@ -32,7 +32,7 @@ ASP.NET Core Web API which allows to simulate battleships game between two AI
 
 ## Screenshots
 <p align="center">
- <img src="./battleshipsapi.jpg" alt="Screenshot from Swagger with BattleshipsGameAPI"/>
+ <img src="./battleshipsapi.png" alt="Screenshot from Swagger with BattleshipsGameAPI"/>
  <img src="./battleshipsapi2.jpg" alt="Screenshot from Swagger with BattleshipsGameAPI"/>
  <img src="./battleshipsapi3.jpg" alt="Screenshot from Swagger with BattleshipsGameAPI"/>
 </p>
