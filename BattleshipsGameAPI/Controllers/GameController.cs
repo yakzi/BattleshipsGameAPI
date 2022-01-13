@@ -42,11 +42,19 @@ namespace BattleshipsGameAPI.Controllers
         }
 
         [HttpPost]
-        [Route("PlaceShipOnPlayerBoard/{shipLength}/{direction}/{playerId}", Name = nameof(PlaceShipOnPlayerBoard))]
+        [Route("PlaceShipOnPlayerBoard", Name = nameof(PlaceShipOnPlayerBoard))]
         public async Task<ActionResult> PlaceShipOnPlayerBoard(PlaceShipOnPlayerBoardRequest placeShipOnPlayerBoardRequest, CancellationToken cancellationToken)
         {
-            var insertShip = await gameService.InsertShip(placeShipOnPlayerBoardRequest.shipLength, placeShipOnPlayerBoardRequest.direction, placeShipOnPlayerBoardRequest.playerId, cancellationToken);
-            return Ok(new PlaceShipOnPlayerBoardResponse(insertShip.Board));
+            var playerWithInsertedShip = await gameService.InsertShip(placeShipOnPlayerBoardRequest.shipLength, placeShipOnPlayerBoardRequest.direction, placeShipOnPlayerBoardRequest.playerId, cancellationToken);
+            return Ok(new PlaceShipOnPlayerBoardResponse(playerWithInsertedShip.Board));
+        }
+
+        [HttpPost]
+        [Route("FireAtPlayerBoard", Name = nameof(FireAtPlayerBoard))]
+        public async Task<ActionResult> FireAtPlayerBoard(FireAtPlayerBoardRequest fireAtPlayerBoardRequest, CancellationToken cancellationToken)
+        {
+            var playerWithFiredBoard = await gameService.Fire(fireAtPlayerBoardRequest.shooterId, fireAtPlayerBoardRequest.targetId, cancellationToken);
+            return Ok(new PlaceShipOnPlayerBoardResponse(playerWithFiredBoard));
         }
     }
 }
