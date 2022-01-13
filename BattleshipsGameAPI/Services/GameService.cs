@@ -166,7 +166,7 @@ namespace BattleshipsGameAPI.Services
             return player;
         }
 
-        public async Task<Player> Fire(string shooterId, string targetId, CancellationToken cancellationToken)
+        public async Task<List<Point>> Fire(string shooterId, string targetId, CancellationToken cancellationToken)
         {
             var target = await playerRepository.LoadPlayerAsync(targetId, cancellationToken);
 
@@ -192,11 +192,11 @@ namespace BattleshipsGameAPI.Services
                         }
                     }
                     await playerRepository.SavePlayerAsync(target, cancellationToken);
-                    return target;
+                    return target.Board;
                 }
                 else
                 {
-                    return null; //Content($"{shooterId} won!");        //TODO
+                    return new List<Point>(); //Content($"{shooterId} won!");        //TODO
                 }
             }
         }
