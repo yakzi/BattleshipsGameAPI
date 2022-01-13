@@ -1,257 +1,59 @@
-﻿using BattleshipsGameDotNET.Models;
+﻿using BattleshipsGameAPI.Controllers.Models;
+using BattleshipsGameAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace BattleshipsGameAPI.Controllers
 {
-    public class GameController : ControllerBase
+    public class GameController : Controller
     {
-        private readonly Random _random;
-        public GameController()
+        private readonly IGameService gameService;
+
+        public GameController(IGameService gameService)
         {
-            _random = new Random();
+            this.gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
         }
 
-        [HttpGet]
-        [Route("CreatePlayer/{playername}")]
-        public ActionResult CreatePlayer(string playername)
+        [HttpPost]
+        [Route("CreatePlayerBoard")]
+        public async Task<ActionResult> CreatePlayerBoard(CreatePlayerBoardRequest createPlayerBoard, CancellationToken cancellationToken)
         {
-            Player player = new();
-            CreateBoard(player);
-            SaveBoard(player.Board, @$"{Consts.FilePath}\{playername}.json");
-            return Json(player.Board);
-        }
-        private void CreateBoard(Player player)
-        {
-            player.Board = new List<Point>();                              //Basic board, with all fields set to empty
-            for (var x = 0; x < 10; x++)
+            try
             {
-                for (var y = 0; y < 10; y++)
-                {
-                    player.Board.Add(new Point
-                    {
-                        Field = Field.Empty,
-                        X = x,
-                        Y = y
-                    });
-                }
+                var player = await gameService.CreatePlayerAsync(createPlayerBoard.Playername, cancellationToken);
+                return Created(Url.RouteUrl(nameof(GetPlayerBoard), new { playerId = player.Id }), new CreatePlayerBoardResponse(player.Id));
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(exc);
             }
         }
 
         [HttpGet]
-        [Route("GetBoard/{playername}")]
-        public ActionResult GetBoard(string playername)
+        [Route("Players/{playerId}/Board", Name = nameof(GetPlayerBoard))]
+        public async Task<ActionResult> GetPlayerBoard(string playerId, CancellationToken cancellationToken)
         {
-           return Json(LoadBoard(@$"{Consts.FilePath}\{playername}.json"));
+            var player = await gameService.GetPlayerAsync(playerId, cancellationToken);
+
+            if (player is null)
+                return NotFound();
+
+            return Ok(new GetPlayerBoardResponse(player.Board));
         }
 
-        [HttpGet]
-        [Route("InsertShip/{playername}/{shipLength}/{direction}")]
-        public ActionResult InsertShip(int shipLength, Direction direction, string playername, List<Point> ?board, out List<Point> newBoard)
+        [HttpPost]
+        [Route("PlaceShipOnPlayerBoard", Name = nameof(PlaceShipOnPlayerBoard))]
+        public async Task<ActionResult> PlaceShipOnPlayerBoard(PlaceShipOnPlayerBoardRequest placeShipOnPlayerBoardRequest, CancellationToken cancellationToken)
         {
-            if (board is null)
-            {
-                board = LoadBoard(@$"{Consts.FilePath}\{playername}.json");
-            }
-            var isValid = true;                                                                                         //To know if the ship can be placed or not (because of map size or other ship beeing already in here)
-            var lengthX = board.Max(point => point.X);
-            var lengthY = board.Max(point => point.Y);
-            int startX, startY;                                                                                         //For keeping the ship 'drawing' starting point
-            do
-            {
-                startX = new Random().Next(0, lengthX + 1);
-                startY = new Random().Next(0, lengthY + 1);                                                             //Random starting coorditanes of new ship
-
-                if (board.Single(p => p.X == startX && p.Y == startY).Field != Field.Empty)                             //This if will check, if field on which we try to place new ship is empty
-                {
-                    isValid = false;
-                    continue;
-                }
-
-                isValid = true;
-                for (var i = 0; i < shipLength; i++)
-                {
-                    switch (direction)
-                    {
-                        case Direction.Left:
-                            var currentLeftPoint = board.SingleOrDefault(p => p.X == startX - i && p.Y == startY);      //Getting current 'sector' of ship on board
-                            if (currentLeftPoint is null ||
-                                currentLeftPoint.Field != Field.Empty ||
-                                board.SingleOrDefault(p => p.X == (currentLeftPoint.X) + 1 && p.Y == currentLeftPoint.Y) is null ||
-                                board.SingleOrDefault(p => p.X == (currentLeftPoint.X) - 1 && p.Y == currentLeftPoint.Y) is null ||
-                                board.SingleOrDefault(p => p.X == currentLeftPoint.X && p.Y == currentLeftPoint.Y + 1) is null ||
-                                board.SingleOrDefault(p => p.X == currentLeftPoint.X && p.Y == currentLeftPoint.Y - 1) is null ||
-                                board.SingleOrDefault(p => p.X == (currentLeftPoint.X) + 1 && p.Y == currentLeftPoint.Y).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == (currentLeftPoint.X) - 1 && p.Y == currentLeftPoint.Y).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == currentLeftPoint.X && p.Y == currentLeftPoint.Y + 1).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == currentLeftPoint.X && p.Y == currentLeftPoint.Y - 1).Field == Field.ShipPlaced)
-
-                            {
-                                isValid = false;
-                            }
-                            break;
-                        case Direction.Right:
-                            var currentRightPoint = board.SingleOrDefault(p => p.X == startX + i && p.Y == startY);
-                            if (currentRightPoint is null ||
-                                currentRightPoint.Field != Field.Empty ||
-                                board.SingleOrDefault(p => p.X == (currentRightPoint.X) + 1 && p.Y == currentRightPoint.Y) is null ||
-                                board.SingleOrDefault(p => p.X == (currentRightPoint.X) - 1 && p.Y == currentRightPoint.Y) is null ||
-                                board.SingleOrDefault(p => p.X == currentRightPoint.X && p.Y == currentRightPoint.Y + 1) is null ||
-                                board.SingleOrDefault(p => p.X == currentRightPoint.X && p.Y == currentRightPoint.Y - 1) is null ||
-                                board.SingleOrDefault(p => p.X == (currentRightPoint.X) + 1 && p.Y == currentRightPoint.Y).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == (currentRightPoint.X) - 1 && p.Y == currentRightPoint.Y).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == currentRightPoint.X && p.Y == currentRightPoint.Y + 1).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == currentRightPoint.X && p.Y == currentRightPoint.Y - 1).Field == Field.ShipPlaced)
-                            {
-                                isValid = false;
-                            }
-                            break;
-                        case Direction.Up:
-                            var currentUpPoint = board.SingleOrDefault(p => p.X == startX && p.Y == startY + i);
-                            if (currentUpPoint is null || currentUpPoint.Field != Field.Empty ||
-                                board.SingleOrDefault(p => p.X == currentUpPoint.X + 1 && p.Y == (currentUpPoint.Y)) is null ||
-                                board.SingleOrDefault(p => p.X == currentUpPoint.X - 1 && p.Y == (currentUpPoint.Y)) is null ||
-                                board.SingleOrDefault(p => p.X == currentUpPoint.X && p.Y == (currentUpPoint.Y) + 1) is null ||
-                                board.SingleOrDefault(p => p.X == currentUpPoint.X && p.Y == (currentUpPoint.Y) - 1) is null ||
-                                board.SingleOrDefault(p => p.X == currentUpPoint.X + 1 && p.Y == (currentUpPoint.Y)).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == currentUpPoint.X - 1 && p.Y == (currentUpPoint.Y)).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == currentUpPoint.X && p.Y == (currentUpPoint.Y) + 1).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == currentUpPoint.X && p.Y == (currentUpPoint.Y) - 1).Field == Field.ShipPlaced)
-                            {
-                                isValid = false;
-                            }
-                            break;
-                        case Direction.Down:
-                            var currentDownPoint = board.SingleOrDefault(p => p.X == startX && p.Y == startY - i);
-                            if (currentDownPoint is null || currentDownPoint.Field != Field.Empty ||
-                                board.SingleOrDefault(p => p.X == currentDownPoint.X + 1 && p.Y == (currentDownPoint.Y)) is null ||
-                                board.SingleOrDefault(p => p.X == currentDownPoint.X - 1 && p.Y == (currentDownPoint.Y)) is null ||
-                                board.SingleOrDefault(p => p.X == currentDownPoint.X && p.Y == (currentDownPoint.Y) + 1) is null ||
-                                board.SingleOrDefault(p => p.X == currentDownPoint.X && p.Y == (currentDownPoint.Y) - 1) is null ||
-                                board.SingleOrDefault(p => p.X == currentDownPoint.X + 1 && p.Y == (currentDownPoint.Y)).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == currentDownPoint.X - 1 && p.Y == (currentDownPoint.Y)).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == currentDownPoint.X && p.Y == (currentDownPoint.Y) + 1).Field == Field.ShipPlaced ||
-                                board.SingleOrDefault(p => p.X == currentDownPoint.X && p.Y == (currentDownPoint.Y) - 1).Field == Field.ShipPlaced)
-                            {
-                                isValid = false;
-                            }
-                            break;
-                    }
-                }
-
-            } while (!isValid);
-
-            for (var i = 0; i < shipLength; i++)                                                    //Actual ship insertion to the board
-            {
-                switch (direction)
-                {
-                    case Direction.Left:
-                        var pointLeft = board.Single(p => p.X == startX - i && p.Y == startY);
-                        pointLeft.Field = Field.ShipPlaced;
-                        break;
-                    case Direction.Right:
-                        var pointRight = board.Single(p => p.X == startX + i && p.Y == startY);
-                        pointRight.Field = Field.ShipPlaced;
-                        break;
-                    case Direction.Up:
-                        var pointUp = board.Single(p => p.X == startX && p.Y == startY + i);
-                        pointUp.Field = Field.ShipPlaced;
-                        break;
-                    case Direction.Down:
-                        var pointDown = board.Single(p => p.X == startX && p.Y == startY - i);
-                        pointDown.Field = Field.ShipPlaced;
-                        break;
-                }
-            }
-
-            newBoard = board;
-            return Json(newBoard);
+            var playerWithInsertedShip = await gameService.InsertShip(placeShipOnPlayerBoardRequest.shipLength, placeShipOnPlayerBoardRequest.direction, placeShipOnPlayerBoardRequest.playerId, cancellationToken);
+            return Ok(new PlaceShipOnPlayerBoardResponse(playerWithInsertedShip.Board));
         }
 
-        [HttpGet]
-        [Route("InsertStartingShips/{playerName}")]
-        public ActionResult InsertStartingShips(string playerName)
+        [HttpPost]
+        [Route("FireAtPlayerBoard", Name = nameof(FireAtPlayerBoard))]
+        public async Task<ActionResult> FireAtPlayerBoard(FireAtPlayerBoardRequest fireAtPlayerBoardRequest, CancellationToken cancellationToken)
         {
-            InsertShip(5, (Direction)_random.Next(0, 4), playerName, null, out var board);
-            InsertShip(4, (Direction)_random.Next(0, 4), playerName, board, out board);
-            InsertShip(3, (Direction)_random.Next(0, 4), playerName, board, out board);
-            InsertShip(2, (Direction)_random.Next(0, 4), playerName, board, out board);
-            InsertShip(2, (Direction)_random.Next(0, 4), playerName, board, out board);
-            InsertShip(1, (Direction)_random.Next(0, 4), playerName, board, out board);
-            InsertShip(1, (Direction)_random.Next(0, 4), playerName, board, out board);
-            SaveBoard(board, @$"{Consts.FilePath}\{playerName}.json");
-            return Json(board);
-        }
-
-        [HttpGet]
-        [Route("Fire/{shooterName}/{targetName}/autoFire")]
-        public ActionResult Fire(string shooterName, string targetName, bool autoFire = false)
-        {
-            var shooter = LoadBoard(@$"{Consts.FilePath}\{shooterName}.json");
-            var target = LoadBoard(@$"{Consts.FilePath}\{targetName}.json");
-
-            if (autoFire)
-            {
-                while (target.Any(t => t.Field == Field.ShipPlaced))
-                {
-                    int x, y;
-                    do
-                    {
-                        x = new Random().Next(0, 10);
-                        y = new Random().Next(0, 10);
-                    } while (!target.Any(p => p.X == x && p.Y == y && p.Field != Field.Miss && p.Field != Field.ShipHit));      //because 'AI' knows previous shots 
-
-                    var aimedPoint = target.First(p => p.X == x && p.Y >= y);                                                   //actual shooting point
-                    if (aimedPoint.Field != Field.ShipHit && aimedPoint.Field != Field.Miss)
-                    {
-                        if (aimedPoint.Field == Field.ShipPlaced)
-                        {
-                            aimedPoint.Field = Field.ShipHit;
-                        }
-                        else
-                        {
-                            aimedPoint.Field = Field.Miss;
-                        }
-                    }
-
-                    SaveBoard(shooter, @$"{Consts.FilePath}\{shooterName}.json");
-                    SaveBoard(target, @$"{Consts.FilePath}\{shooterName}.json");
-                }
-                return Json(target);
-            }
-            else
-            {
-                if (target.Any(t => t.Field == Field.ShipPlaced))
-                {
-                    int x, y;
-                    do
-                    {
-                        x = new Random().Next(0, 10);
-                        y = new Random().Next(0, 10);
-                    } while (!target.Any(p => p.X == x && p.Y == y && p.Field != Field.Miss && p.Field != Field.ShipHit));      //because 'AI' knows previous shots 
-
-                    var aimedPoint = target.First(p => p.X == x && p.Y >= y);                                                   //actual shooting point
-                    if (aimedPoint.Field != Field.ShipHit && aimedPoint.Field != Field.Miss)
-                    {
-                        if (aimedPoint.Field == Field.ShipPlaced)
-                        {
-                            aimedPoint.Field = Field.ShipHit;
-                        }
-                        else
-                        {
-                            aimedPoint.Field = Field.Miss;
-                        }
-                    }
-
-                    SaveBoard(shooter, @$"{Consts.FilePath}\{shooterName}.json");
-                    SaveBoard(target, @$"{Consts.FilePath}\{shooterName}.json");
-                    return Json(target);
-                }
-                else
-                {
-                    return Content($"{shooterName} won!");
-                }
-            }
+            var playerWithFiredBoard = await gameService.Fire(fireAtPlayerBoardRequest.shooterId, fireAtPlayerBoardRequest.targetId, cancellationToken);
+            return Ok(new PlaceShipOnPlayerBoardResponse(playerWithFiredBoard));
         }
     }
 }
