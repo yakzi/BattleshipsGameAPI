@@ -1,6 +1,5 @@
 ﻿using BattleshipsGameAPI.Controllers.Models;
 using BattleshipsGameAPI.Services;
-using BattleshipsGameDotNET.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BattleshipsGameAPI.Controllers
