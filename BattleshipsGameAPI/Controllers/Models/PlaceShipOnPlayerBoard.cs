@@ -2,6 +2,6 @@
 
 namespace BattleshipsGameAPI.Controllers.Models
 {
-    record PlaceShipOnPlayerBoardRequest(int shipLength, Direction direction, string playerId);
-    record PlaceShipOnPlayerBoardResponse(List<Point> Board);
+    public record PlaceShipOnPlayerBoardRequest(int shipLength, Direction direction, string playerId);
+    public record PlaceShipOnPlayerBoardResponse(List<Point> Board);
 }
