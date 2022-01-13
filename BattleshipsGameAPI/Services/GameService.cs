@@ -7,6 +7,8 @@ namespace BattleshipsGameAPI.Services
     {
         Task<Player> CreatePlayerAsync(string playername, CancellationToken cancellationToken);
         Task<Player> GetPlayerAsync(string playerId, CancellationToken cancellationToken);
+        Task<Player> InsertShip(int shipLength, Direction direction, string playerId, CancellationToken cancellationToken);
+        Task<Player> Fire(string shooterId, string targetId, CancellationToken cancellationToken);
     }
 
     internal class GameService : IGameService
