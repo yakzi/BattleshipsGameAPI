@@ -23,7 +23,7 @@ ASP.NET Core Web API which allows to simulate battleships game between two AI
 * <b>/Players/{playerId}/Board</b> - allows to recieve player board in a response body
 * <b>/PlaceShipOnPlayerBoard</b> - allows to insert a new ship with specified length and direction to player's board, and saves updated board to .json file. <br><b> Response: Updated players board in response body</b>
 * <b>/FireAtPlayerBoard</b> - allows to shoot other player's board in totally random way (but 'AI' remembers previous missfires and hit ships), and saves updated board to .json file. <br> <b>Response:</b> Updated players board in response body 
-<b>This funcionality is under development - it wokrks, but there is no condition or any response either than empty list when every ship was hit</b>
+<br><b>This funcionality is under development - it works, but there is no condition or any response either than empty list when every ship was hit</b>
 
 ## Technologies
 * ASP.NET Core Web API
